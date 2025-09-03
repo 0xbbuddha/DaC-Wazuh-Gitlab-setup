@@ -6,7 +6,7 @@ set -euo pipefail
 : "${WAZUH_USER:?Variable WAZUH_USER manquante}"
 WAZUH_SSH_PORT=${WAZUH_SSH_PORT:-22}
 REPO_DIR=${REPO_DIR:-/var/ossec/etc}
-WAZUH_RESTART_CMD=${WAZUH_RESTART_CMD:-"sudo systemctl restart wazuh-agent"}
+WAZUH_RESTART_CMD=${WAZUH_RESTART_CMD:-"sudo systemctl restart wazuh-manager"}
 SSH_STRICT=${SSH_STRICT:-"no"}
 
 echo "==> Préparation de la clé SSH"
