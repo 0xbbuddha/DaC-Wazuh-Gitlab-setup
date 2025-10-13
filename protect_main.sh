@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# 🔧 Configuration - À adapter selon votre projet
-GITLAB_URL=""  # ou votre instance GitLab
-PROJECT_ID=""               # ID de votre projet GitLab
-GITLAB_TOKEN=""  # Token d'accès personnel
+# 🔧 Configuration - Adapt according to your project
+GITLAB_URL=""  # or your GitLab instance
+PROJECT_ID=""               # Your GitLab project ID
+GITLAB_TOKEN=""  # Personal access token
 
-echo "🚀 Configuration de la protection GitLab via API..."
+echo "🚀 Configuring GitLab protection via API..."
 
-# 1. 🔒 Protéger la branche main (équivalent GitHub deletion + creation rules)
-echo "📍 Protection de la branche main..."
+# 1. 🔒 Protect main branch (GitHub deletion + creation rules equivalent)
+echo "📍 Protecting main branch..."
 curl --request POST \
   --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
   --header "Content-Type: application/json" \
@@ -21,10 +21,10 @@ curl --request POST \
   }' \
   "$GITLAB_URL/api/v4/projects/$PROJECT_ID/protected_branches"
 
-echo "✅ Branche main protégée"
+echo "✅ Main branch protected"
 
-# 2. 🔄 Configuration Merge Request (équivalent GitHub pull_request rules)
-echo "📍 Configuration des règles de Merge Request..."
+# 2. 🔄 Merge Request configuration (GitHub pull_request rules equivalent)
+echo "📍 Configuring Merge Request rules..."
 curl --request PUT \
   --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
   --header "Content-Type: application/json" \
@@ -37,10 +37,10 @@ curl --request PUT \
   }' \
   "$GITLAB_URL/api/v4/projects/$PROJECT_ID"
 
-echo "✅ Règles MR configurées"
+echo "✅ MR rules configured"
 
-# 3. 🛡️ Push Rules (équivalent required_signatures - Premium uniquement)
-echo "📍 Configuration des Push Rules..."
+# 3. 🛡️ Push Rules (required_signatures equivalent - Premium only)
+echo "📍 Configuring Push Rules..."
 curl --request POST \
   --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
   --header "Content-Type: application/json" \
@@ -56,10 +56,10 @@ curl --request POST \
   }' \
   "$GITLAB_URL/api/v4/projects/$PROJECT_ID/push_rule"
 
-echo "✅ Push rules configurées"
+echo "✅ Push rules configured"
 
-# 4. 📋 Approval Rules (si nécessaire)
-echo "📍 Configuration des règles d'approbation..."
+# 4. 📋 Approval Rules (if necessary)
+echo "📍 Configuring approval rules..."
 curl --request POST \
   --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
   --header "Content-Type: application/json" \
@@ -71,14 +71,14 @@ curl --request POST \
   }' \
   "$GITLAB_URL/api/v4/projects/$PROJECT_ID/merge_request_approval_rules"
 
-echo "✅ Règles d'approbation configurées"
+echo "✅ Approval rules configured"
 
 echo ""
-echo "🎉 Configuration terminée !"
-echo "📝 Résumé de la protection équivalente à votre GitHub Ruleset :"
-echo "   ✅ Branche main protégée (pas de push direct)"
-echo "   ✅ Pipeline obligatoire avant merge"  
-echo "   ✅ Discussions résolues obligatoires"
-echo "   ✅ Push rules activées"
+echo "🎉 Configuration completed!"
+echo "📝 Summary of protection equivalent to your GitHub Ruleset:"
+echo "   ✅ Main branch protected (no direct push)"
+echo "   ✅ Pipeline required before merge"  
+echo "   ✅ Resolved discussions required"
+echo "   ✅ Push rules enabled"
 echo ""
-echo "🚀 Testez avec une Merge Request !"
+echo "🚀 Test with a Merge Request!"

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "==> Vérification des IDs de règles via check_rule_ids.py"
+echo "==> Checking rule IDs via check_rule_ids.py"
 
 if [[ ! -f "check_rule_ids.py" ]]; then
-  echo "[ERROR] Fichier check_rule_ids.py introuvable à la racine du repo"
+  echo "[ERROR] File check_rule_ids.py not found at repository root"
   exit 2
 fi
 

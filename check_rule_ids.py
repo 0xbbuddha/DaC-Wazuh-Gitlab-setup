@@ -15,23 +15,23 @@ def run_git_command(args):
         raise
 
 def get_target_branch():
-    """Détermine la branche cible selon l'environnement"""
+    """Determines the target branch according to the environment"""
     # GitLab CI variables
     if os.getenv('CI_MERGE_REQUEST_TARGET_BRANCH_NAME'):
         return f"origin/{os.getenv('CI_MERGE_REQUEST_TARGET_BRANCH_NAME')}"
     elif os.getenv('CI_DEFAULT_BRANCH'):
         return f"origin/{os.getenv('CI_DEFAULT_BRANCH')}"
-    # Fallback pour GitHub ou local
+    # Fallback for GitHub or local
     else:
         return "origin/main"
 
 def setup_git_environment():
-    """Configure Git pour GitLab CI"""
-    if os.getenv('CI'):  # En environnement CI
+    """Configure Git for GitLab CI"""
+    if os.getenv('CI'):  # In CI environment
         try:
-            # Fetch toutes les branches
+            # Fetch all branches
             run_git_command(["git", "fetch", "origin"])
-            # Configure Git si nécessaire
+            # Configure Git if necessary
             run_git_command(["git", "config", "--global", "user.email", "ci@gitlab.com"])
             run_git_command(["git", "config", "--global", "user.name", "GitLab CI"])
         except subprocess.CalledProcessError as e:
@@ -42,18 +42,18 @@ def get_changed_rule_files():
     print(f"🔍 Comparing against: {target_branch}")
     
     try:
-        # Dans GitLab CI, on peut avoir besoin de faire un fetch d'abord
+        # In GitLab CI, we may need to fetch first
         if os.getenv('CI'):
             run_git_command(["git", "fetch", "origin"])
         
-        # Essayer différentes approches selon l'environnement
+        # Try different approaches depending on the environment
         commands_to_try = [
             ["git", "diff", "--name-status", f"{target_branch}...HEAD"],
             ["git", "diff", "--name-status", f"{target_branch}..HEAD"],
             ["git", "diff", "--name-status", target_branch],
             ["git", "diff", "--name-status", "HEAD~1"],
             ["git", "diff", "--name-status", "--cached"],
-            ["git", "ls-files", "--others", "--exclude-standard"]  # fichiers non trackés
+            ["git", "ls-files", "--others", "--exclude-standard"]  # untracked files
         ]
         
         output = ""
@@ -70,13 +70,13 @@ def get_changed_rule_files():
                 print(f"❌ Command failed: {e}")
                 continue
         
-        # Si aucune commande ne donne de résultat, lister tous les fichiers XML
+        # If no command gives a result, list all XML files
         if not output.strip():
             print("🔄 No changes detected via git diff, checking all XML files in rules/")
             rules_dir = Path("rules")
             if rules_dir.exists():
                 xml_files = list(rules_dir.glob("*.xml"))
-                changed_files = [("+", f) for f in xml_files]  # Traiter comme nouveaux fichiers
+                changed_files = [("+", f) for f in xml_files]  # Treat as new files
                 print(f"📁 Found XML files: {[f.name for f in xml_files]}")
                 return changed_files
         
@@ -85,7 +85,7 @@ def get_changed_rule_files():
             if not line.strip():
                 continue
             parts = line.strip().split(maxsplit=1)
-            if len(parts) == 1:  # Fichier non tracké (git ls-files)
+            if len(parts) == 1:  # Untracked file (git ls-files)
                 file_path = parts[0]
                 status = "A"
             elif len(parts) == 2:
@@ -107,7 +107,7 @@ def get_changed_rule_files():
 def extract_rule_ids_from_xml(content):
     ids = []
     try:
-        # Nettoyer le contenu avant parsing
+        # Clean content before parsing
         content = content.strip()
         if not content:
             return ids
@@ -127,7 +127,7 @@ def get_rule_ids_per_file_in_target():
     target_branch = get_target_branch()
     
     try:
-        # Assurer que la branche cible est disponible
+        # Ensure the target branch is available
         run_git_command(["git", "fetch", "origin"])
         files_output = run_git_command(["git", "ls-tree", "-r", target_branch, "--name-only"])
     except subprocess.CalledProcessError:
@@ -144,7 +144,7 @@ def get_rule_ids_per_file_in_target():
             for rule_id in rule_ids:
                 rule_id_to_files[rule_id].add(file)
         except subprocess.CalledProcessError:
-            # Si le fichier n'existe pas dans la branche cible, ignorer
+            # If the file doesn't exist in the target branch, ignore
             continue
     return rule_id_to_files
 
@@ -181,7 +181,7 @@ def main():
     print(f"CI_COMMIT_SHA: {os.getenv('CI_COMMIT_SHA')}")
     print(f"Working directory: {os.getcwd()}")
     
-    # Liste tous les fichiers XML dans rules/
+    # List all XML files in rules/
     rules_dir = Path("rules")
     if rules_dir.exists():
         xml_files = list(rules_dir.glob("*.xml"))
@@ -189,7 +189,7 @@ def main():
     else:
         print("❌ rules/ directory not found!")
     
-    # Configuration de l'environnement Git
+    # Git environment configuration
     setup_git_environment()
     
     # Debug git status
@@ -197,11 +197,11 @@ def main():
         git_status = run_git_command(["git", "status", "--porcelain"])
         print(f"📋 Git status: {git_status.strip() if git_status.strip() else 'clean'}")
         
-        # Branches disponibles
+        # Available branches
         branches = run_git_command(["git", "branch", "-a"])
         print(f"🌿 Available branches: {branches.strip()}")
         
-        # Dernier commit
+        # Last commit
         last_commit = run_git_command(["git", "log", "--oneline", "-1"])
         print(f"📝 Last commit: {last_commit.strip()}")
     except subprocess.CalledProcessError as e:
@@ -210,13 +210,13 @@ def main():
     changed_files = get_changed_rule_files()
     if not changed_files:
         print("⚠️ No rule files detected as changed via git diff.")
-        # En dernier recours, vérifier tous les fichiers XML s'il y a un argument --force
+        # As a last resort, check all XML files if there's a --force argument
         if "--force" in sys.argv or os.getenv('FORCE_CHECK_ALL_RULES'):
             print("🔄 Force checking all XML files in rules/")
             rules_dir = Path("rules")
             if rules_dir.exists():
                 xml_files = list(rules_dir.glob("*.xml"))
-                changed_files = [("A", f) for f in xml_files]  # Traiter comme nouveaux
+                changed_files = [("A", f) for f in xml_files]  # Treat as new files
                 print(f"📁 Force checking: {[f.name for f in xml_files]}")
             
         if not changed_files:
