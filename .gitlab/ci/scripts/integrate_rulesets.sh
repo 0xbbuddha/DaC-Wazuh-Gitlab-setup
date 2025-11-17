@@ -18,8 +18,8 @@ if [[ -z "${WAZUH_SSH_PRIVATE_KEY:-}" ]]; then
   exit 2
 fi
 
-echo "$WAZUH_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-chmod 600 ~/.ssh/id_ed25519
+echo "$WAZUH_SSH_PRIVATE_KEY" > ~/.ssh/rac
+chmod 600 ~/.ssh/rac
 
 if [[ -n "${WAZUH_HOST_FINGERPRINT:-}" ]]; then
   echo "${WAZUH_HOST_FINGERPRINT}" >> ~/.ssh/known_hosts
